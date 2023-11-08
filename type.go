@@ -26,12 +26,12 @@ type WaClient struct {
 }
 
 type WebHook struct {
-	URL    string `bson:"url"`
-	Secret string `bson:"secret"`
+	URL    string `bson:"url" json:"url"`
+	Secret string `bson:"secret" json:"secret"`
 }
 
 type User struct {
-	PhoneNumber string  `bson:"phonenumber"`
-	WebHook     WebHook `bson:"webhook"`
-	Token       string  `bson:"token"`
+	PhoneNumber string  `bson:"phonenumber" json:"phonenumber"`
+	WebHook     WebHook `bson:"webhook" json:"webhook"`
+	Token       string  `bson:"token" json:"token"`
 }
