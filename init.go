@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/aiteung/atdb"
+	"github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 	"go.mau.fi/whatsmeow"
 	"go.mau.fi/whatsmeow/store"
@@ -25,13 +26,14 @@ func (mycli *WaClient) EventHandler(evt interface{}) {
 	}
 }
 
-func ClientDB(phonenumber string, mongoconn *mongo.Database) (client WaClient) {
+func CreateContainerDB(pgstring string) (container *sqlstore.Container, err error) {
 	dbLog := waLog.Stdout("Database", "ERROR", true)
-	// Make sure you add appropriate DB connector imports, e.g. github.com/mattn/go-sqlite3 for SQLite
-	container, err := sqlstore.New("sqlite3", "file:wa.db?_foreign_keys=on", dbLog)
-	if err != nil {
-		panic(err)
-	}
+	pgUrl, err := pq.ParseURL(pgstring)
+	container, err = sqlstore.New("postgres", pgUrl, dbLog)
+	return
+}
+
+func ClientDB(phonenumber string, mongoconn *mongo.Database, container *sqlstore.Container) (client WaClient, err error) {
 	// If you want multiple sessions, remember their JIDs and use .GetDevice(jid) or .GetAllDevices() instead.
 	//deviceStore, err := container.GetFirstDevice()
 	deviceStores, err := container.GetAllDevices()
