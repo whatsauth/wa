@@ -33,6 +33,13 @@ func CreateContainerDB(pgstring string) (container *sqlstore.Container, err erro
 	return
 }
 
+func ResetDeviceStore(client *WaClient, container *sqlstore.Container) (err error) {
+	err = container.DeleteDevice(client.WAClient.Store)
+	deviceStore := container.NewDevice()
+	client.WAClient = whatsmeow.NewClient(deviceStore, waLog.Stdout("Client", "ERROR", true))
+	return
+}
+
 func ClientDB(phonenumber string, mongoconn *mongo.Database, container *sqlstore.Container) (client WaClient, err error) {
 	// If you want multiple sessions, remember their JIDs and use .GetDevice(jid) or .GetAllDevices() instead.
 	//deviceStore, err := container.GetFirstDevice()
