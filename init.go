@@ -2,6 +2,7 @@ package wa
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/aiteung/atdb"
 	_ "github.com/mattn/go-sqlite3"
@@ -43,6 +44,7 @@ func ClientDB(phonenumber string, mongoconn *mongo.Database) (client WaClient) {
 		}
 	}
 	if deviceStore == nil {
+		fmt.Println("device baru")
 		deviceStore = container.NewDevice()
 	}
 	//deviceStore, err := container.GetAllDevices()
