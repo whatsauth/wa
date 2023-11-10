@@ -119,15 +119,7 @@ func PairConnect(client WaClient, qr chan QRStatus) {
 
 }
 
-func ConnectAllClient(mongoconn *mongo.Database) (clients []*WaClient) {
-	dbLog := waLog.Stdout("Database", "DEBUG", true)
-	// Make sure you add appropriate DB connector imports, e.g. github.com/mattn/go-sqlite3 for SQLite
-	container, err := sqlstore.New("sqlite3", "file:wa.db?_foreign_keys=on", dbLog)
-	if err != nil {
-		panic(err)
-	}
-	// If you want multiple sessions, remember their JIDs and use .GetDevice(jid) or .GetAllDevices() instead.
-	//deviceStore, err := container.GetFirstDevice()
+func ConnectAllClient(mongoconn *mongo.Database, container *sqlstore.Container) (clients []*WaClient, err error) {
 	deviceStores, err := container.GetAllDevices()
 	//deviceStore, err := container.GetDevice(jid)
 	nosebelumnya := ""
