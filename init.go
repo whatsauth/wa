@@ -116,8 +116,10 @@ func PairConnect(client *WaClient, qr chan QRStatus) {
 		if err != nil {
 			message = err.Error()
 			qr <- QRStatus{client.PhoneNumber, false, "", message}
+		} else {
+			qr <- QRStatus{client.PhoneNumber, true, code, message}
 		}
-		qr <- QRStatus{client.PhoneNumber, true, code, message}
+
 	} else {
 		message := "already login"
 		if !client.WAClient.IsConnected() {
@@ -127,8 +129,10 @@ func PairConnect(client *WaClient, qr chan QRStatus) {
 				message = err.Error()
 				qr <- QRStatus{client.PhoneNumber, false, "", message}
 			}
+		} else {
+			qr <- QRStatus{client.PhoneNumber, false, "", message}
 		}
-		qr <- QRStatus{client.PhoneNumber, false, "", message}
+
 	}
 
 }
