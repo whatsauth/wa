@@ -109,6 +109,7 @@ func PairConnect(client *WaClient, qr chan QRStatus) {
 		err := client.WAClient.Connect()
 		if err != nil {
 			message = err.Error()
+			qr <- QRStatus{client.PhoneNumber, false, "", message}
 		}
 		// No ID stored, new login
 		code, err := client.WAClient.PairPhone(client.PhoneNumber, true, whatsmeow.PairClientUnknown, "Chrome (Mac OS)")
