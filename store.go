@@ -22,8 +22,10 @@ func WithPhoneNumber(phonenumber string, clients []*WaClient, mongoconn *mongo.D
 	user, err := atdb.GetOneLatestDoc[User](mongoconn, "user", bson.M{"phonenumber": phonenumber})
 	idx = -1
 	for i, client := range clients {
-		if (client.ID.User == phonenumber) && (client.ID.Device == user.DeviceID) {
-			idx = i
+		if client.WAClient.Store.ID != nil {
+			if (client.WAClient.Store.ID.User == phonenumber) && (client.WAClient.Store.ID.Device == user.DeviceID) {
+				idx = i
+			}
 		}
 	}
 	return

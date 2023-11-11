@@ -43,7 +43,6 @@ func ResetDeviceStore(mongoconn *mongo.Database, client *WaClient, container *sq
 		var user User
 		user, err = atdb.GetOneLatestDoc[User](mongoconn, "user", filter)
 		user.DeviceID = id
-		client.ID.Device = id
 		client.WAClient.Store.ID.Device = id
 		atdb.ReplaceOneDoc(mongoconn, "user", bson.M{"phonenumber": user.PhoneNumber}, user)
 
@@ -72,9 +71,8 @@ func CreateClientfromContainer(phonenumber string, mongoconn *mongo.Database, co
 	wc.PhoneNumber = phonenumber
 	wc.WAClient = whatsmeow.NewClient(deviceStore, waLog.Stdout("Client", "ERROR", true))
 	wc.Mongoconn = mongoconn
-	wc.ID = deviceStore.ID
 	wc.register()
-	if wc.ID != nil { //tanda belum terkoneksi
+	if wc.WAClient.Store.ID != nil { //tanda belum terkoneksi
 		user.DeviceID = deviceStore.ID.Device
 	}
 	atdb.ReplaceOneDoc(mongoconn, "user", bson.M{"phonenumber": phonenumber}, user)
@@ -185,11 +183,10 @@ func ConnectAllClient(mongoconn *mongo.Database, container *sqlstore.Container) 
 			mycli.WAClient = client
 			mycli.PhoneNumber = deviceStore.ID.User
 			mycli.Mongoconn = mongoconn
-			mycli.ID = deviceStore.ID
 			mycli.register()
 			client.Connect()
 			clients = append(clients, &mycli)
-			user.DeviceID = mycli.ID.Device
+			user.DeviceID = deviceStore.ID.Device
 			atdb.ReplaceOneDoc(mongoconn, "user", bson.M{"phonenumber": user.PhoneNumber}, user)
 		}
 
