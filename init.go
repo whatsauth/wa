@@ -168,6 +168,7 @@ func ConnectClient(client *whatsmeow.Client) error {
 	if !client.IsConnected() {
 		return client.Connect()
 	}
+	return nil
 }
 
 func ConnectAllClient(mongoconn *mongo.Database, container *sqlstore.Container) (clients []*WaClient, err error) {
