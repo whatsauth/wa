@@ -2,7 +2,6 @@ package wa
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/aiteung/atdb"
 	"github.com/lib/pq"
@@ -10,6 +9,7 @@ import (
 	"go.mau.fi/whatsmeow"
 	"go.mau.fi/whatsmeow/store"
 	"go.mau.fi/whatsmeow/store/sqlstore"
+	"go.mau.fi/whatsmeow/types"
 	"go.mau.fi/whatsmeow/types/events"
 	waLog "go.mau.fi/whatsmeow/util/log"
 	"go.mongodb.org/mongo-driver/bson"
@@ -42,29 +42,38 @@ func ResetDeviceStore(client *WaClient, container *sqlstore.Container) (err erro
 	return
 }
 
-func ClientDB(phonenumber string, mongoconn *mongo.Database, container *sqlstore.Container) (client WaClient, err error) {
-	// If you want multiple sessions, remember their JIDs and use .GetDevice(jid) or .GetAllDevices() instead.
-	//deviceStore, err := container.GetFirstDevice()
-	deviceStores, err := container.GetAllDevices()
-	//deviceStore, err := container.GetDevice(jid)
+func CreateClientfromContainer(phonenumber string, mongoconn *mongo.Database, container *sqlstore.Container) (client WaClient, err error) {
+	user, err := atdb.GetOneLatestDoc[User](mongoconn, "user", bson.M{"phonenumber": phonenumber})
 	var deviceStore *store.Device
-	for _, dv := range deviceStores {
-		if dv.ID.User == phonenumber {
-			deviceStore = dv
-		}
+	if user.DeviceID == 0 {
+		var deviceid uint16
+		deviceid, err = GetDeviceIDFromContainer(phonenumber, mongoconn, container)
+		deviceStore, err = container.GetDevice(types.JID{User: user.PhoneNumber, Device: deviceid, Server: "s.whatsapp.net"})
+	} else {
+		deviceStore, err = container.GetDevice(types.JID{User: user.PhoneNumber, Device: user.DeviceID, Server: "s.whatsapp.net"})
 	}
 	if deviceStore == nil {
-		fmt.Println("device baru")
 		deviceStore = container.NewDevice()
 	}
-	//deviceStore, err := container.GetAllDevices()
-	client.PhoneNumber = phonenumber
+	client.PhoneNumber = user.PhoneNumber
 	client.WAClient = whatsmeow.NewClient(deviceStore, waLog.Stdout("Client", "ERROR", true))
 	client.Mongoconn = mongoconn
 	client.ID = deviceStore.ID
 	client.register()
+	user.DeviceID = client.ID.Device
+	atdb.ReplaceOneDoc(mongoconn, "user", bson.M{"phonenumber": phonenumber}, user)
 	return
 
+}
+
+func GetDeviceIDFromContainer(phonenumber string, mongoconn *mongo.Database, container *sqlstore.Container) (deviceid uint16, err error) {
+	deviceStores, err := container.GetAllDevices()
+	for _, dv := range deviceStores {
+		if dv.ID.User == phonenumber {
+			deviceid = dv.ID.Device
+		}
+	}
+	return
 }
 
 func QRConnect(client *WaClient, qr chan QRStatus) {

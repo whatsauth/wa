@@ -34,6 +34,7 @@ type WebHook struct {
 
 type User struct {
 	PhoneNumber string  `bson:"phonenumber" json:"phonenumber"`
+	DeviceID    uint16  `bson:"deviceid" json:"deviceid"`
 	WebHook     WebHook `bson:"webhook" json:"webhook"`
 	Token       string  `bson:"token" json:"token"`
 }
