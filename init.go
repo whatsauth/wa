@@ -133,7 +133,7 @@ func QRConnect(client *WaClient, qr chan QRStatus) {
 
 func PairConnect(client *WaClient, qr chan QRStatus) {
 	if client.WAClient.Store.ID == nil {
-		message := "Pair Code Device"
+		message := "Silahkan Masukkan Pair Code Device di Handphone kakak"
 		err := client.WAClient.Connect()
 		if err != nil {
 			message = err.Error()
@@ -149,9 +149,9 @@ func PairConnect(client *WaClient, qr chan QRStatus) {
 		}
 
 	} else {
-		message := "already login"
+		message := "Sudah login kak"
 		if !client.WAClient.IsConnected() {
-			message = "Melakukan Koneksi Ulang"
+			message = "Koneksi Gagal Mencoba Melakukan Koneksi Ulang"
 			err := client.WAClient.Connect()
 			if err != nil {
 				message = err.Error()
