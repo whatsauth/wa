@@ -15,7 +15,7 @@ import (
 
 func HandlingMessage(Info *types.MessageInfo, Message *waProto.Message, client *WaClient) {
 	go client.WAClient.MarkRead([]string{Info.ID}, time.Now(), Info.Chat, Info.Sender)
-	if !Info.IsFromMe && (Info.Chat.Server != "broadcast") {
+	if !Info.IsFromMe && (Info.Chat.Server != "broadcast") && (Info.Chat.User != "status") {
 		var WAIface = model.IteungWhatsMeowConfig{
 			Waclient: client.WAClient,
 			Info:     Info,
