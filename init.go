@@ -35,11 +35,19 @@ func CreateContainerDB(pgstring string) (container *sqlstore.Container, err erro
 	return
 }
 
-func ResetDeviceStore(client *WaClient, container *sqlstore.Container) (err error) {
-	err = container.DeleteDevice(client.WAClient.Store)
-	deviceStore := container.NewDevice()
-	client.WAClient = whatsmeow.NewClient(deviceStore, waLog.Stdout("Client", "ERROR", true))
-	client.ID = deviceStore.ID
+func ResetDeviceStore(mongoconn *mongo.Database, client *WaClient, container *sqlstore.Container) (err error) {
+	if client.WAClient.Store.ID != nil {
+		var id uint16
+		id, err = GetDeviceIDFromContainer(client.PhoneNumber, container)
+		filter := bson.M{"phonenumber": client.PhoneNumber}
+		var user User
+		user, err = atdb.GetOneLatestDoc[User](mongoconn, "user", filter)
+		user.DeviceID = id
+		client.ID.Device = id
+		client.WAClient.Store.ID.Device = id
+		atdb.ReplaceOneDoc(mongoconn, "user", bson.M{"phonenumber": user.PhoneNumber}, user)
+
+	}
 	return
 }
 
@@ -52,7 +60,7 @@ func CreateClientfromContainer(phonenumber string, mongoconn *mongo.Database, co
 	var deviceStore *store.Device
 	if user.DeviceID == 0 {
 		var deviceid uint16
-		deviceid, err = GetDeviceIDFromContainer(phonenumber, mongoconn, container)
+		deviceid, err = GetDeviceIDFromContainer(phonenumber, container)
 		deviceStore, err = container.GetDevice(types.JID{User: user.PhoneNumber, Device: deviceid, Server: "s.whatsapp.net"})
 	} else {
 		deviceStore, err = container.GetDevice(types.JID{User: user.PhoneNumber, Device: user.DeviceID, Server: "s.whatsapp.net"})
@@ -75,7 +83,7 @@ func CreateClientfromContainer(phonenumber string, mongoconn *mongo.Database, co
 
 }
 
-func GetDeviceIDFromContainer(phonenumber string, mongoconn *mongo.Database, container *sqlstore.Container) (deviceid uint16, err error) {
+func GetDeviceIDFromContainer(phonenumber string, container *sqlstore.Container) (deviceid uint16, err error) {
 	deviceStores, err := container.GetAllDevices()
 	fmt.Println(err)
 	for _, dv := range deviceStores {
