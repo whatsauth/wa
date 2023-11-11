@@ -94,6 +94,17 @@ func GetDeviceIDFromContainer(phonenumber string, container *sqlstore.Container)
 	return
 }
 
+func GetDeviceStoreFromContainer(phonenumber string, container *sqlstore.Container) (device *store.Device, err error) {
+	deviceStores, err := container.GetAllDevices()
+	fmt.Println(err)
+	for _, dv := range deviceStores {
+		if dv.ID.User == phonenumber {
+			device = dv
+		}
+	}
+	return
+}
+
 func QRConnect(client *WaClient, qr chan QRStatus) {
 	if client.WAClient.Store.ID == nil {
 		//client.PairPhone(PhoneNumber, true, whatsmeow.PairClientUnknown, "whatsauth.my.id")
@@ -153,6 +164,12 @@ func PairConnect(client *WaClient, qr chan QRStatus) {
 
 	}
 
+}
+
+func ConnectClient(client *whatsmeow.Client) {
+	if !client.IsConnected() {
+		client.Connect()
+	}
 }
 
 func ConnectAllClient(mongoconn *mongo.Database, container *sqlstore.Container) (clients []*WaClient, err error) {
