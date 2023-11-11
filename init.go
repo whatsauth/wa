@@ -157,7 +157,7 @@ func PairConnect(client *WaClient, qr chan QRStatus) {
 			}
 			qr <- QRStatus{client.PhoneNumber, false, "", message}
 		}
-		qr <- QRStatus{client.PhoneNumber, true, "", message}
+		qr <- QRStatus{client.PhoneNumber, false, "", message}
 
 	}
 
