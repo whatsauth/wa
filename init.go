@@ -2,6 +2,7 @@ package wa
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/aiteung/atdb"
 	"github.com/lib/pq"
@@ -76,6 +77,7 @@ func CreateClientfromContainer(phonenumber string, mongoconn *mongo.Database, co
 
 func GetDeviceIDFromContainer(phonenumber string, mongoconn *mongo.Database, container *sqlstore.Container) (deviceid uint16, err error) {
 	deviceStores, err := container.GetAllDevices()
+	fmt.Println(err)
 	for _, dv := range deviceStores {
 		if dv.ID.User == phonenumber {
 			deviceid = dv.ID.Device
