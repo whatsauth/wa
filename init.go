@@ -164,9 +164,9 @@ func PairConnect(client *WaClient, qr chan QRStatus) {
 
 }
 
-func ConnectClient(client *whatsmeow.Client) {
+func ConnectClient(client *whatsmeow.Client) error {
 	if !client.IsConnected() {
-		client.Connect()
+		return client.Connect()
 	}
 }
 
@@ -182,7 +182,8 @@ func ConnectAllClient(mongoconn *mongo.Database, container *sqlstore.Container) 
 			mycli.PhoneNumber = deviceStore.ID.User
 			mycli.Mongoconn = mongoconn
 			mycli.register()
-			client.Connect()
+			ConnectClient(client)
+			//client.Connect()
 			clients = append(clients, &mycli)
 			user.DeviceID = deviceStore.ID.Device
 			atdb.ReplaceOneDoc(mongoconn, "user", bson.M{"phonenumber": user.PhoneNumber}, user)
