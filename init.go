@@ -65,7 +65,7 @@ func CreateClientfromContainer(phonenumber string, mongoconn *mongo.Database, co
 	wc.Mongoconn = mongoconn
 	wc.ID = deviceStore.ID
 	wc.register()
-	if wc.ID != nil {
+	if wc.ID != nil { //tanda belum terkoneksi
 		user.DeviceID = deviceStore.ID.Device
 	}
 	atdb.ReplaceOneDoc(mongoconn, "user", bson.M{"phonenumber": phonenumber}, user)
