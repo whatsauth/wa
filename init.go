@@ -38,6 +38,7 @@ func ResetDeviceStore(client *WaClient, container *sqlstore.Container) (err erro
 	err = container.DeleteDevice(client.WAClient.Store)
 	deviceStore := container.NewDevice()
 	client.WAClient = whatsmeow.NewClient(deviceStore, waLog.Stdout("Client", "ERROR", true))
+	client.ID = deviceStore.ID
 	return
 }
 
