@@ -5,13 +5,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func GetWaClient(phonenumber string, client []*WaClient, mongoconn *mongo.Database, container *sqlstore.Container) (waclient WaClient, err error) {
+func GetWaClient(phonenumber string, client []*WaClient, mongoconn *mongo.Database, container *sqlstore.Container) (waclient *WaClient, err error) {
 	id := WithPhoneNumber(phonenumber, client)
 	if id >= 0 {
-		waclient = *client[id]
+		waclient = client[id]
 	} else {
 		waclient, err = CreateClientfromContainer(phonenumber, mongoconn, container)
-		client = append(client, &waclient)
+		client = append(client, waclient)
 	}
 	return
 }
