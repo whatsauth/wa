@@ -172,10 +172,8 @@ func ConnectClient(client *whatsmeow.Client) {
 
 func ConnectAllClient(mongoconn *mongo.Database, container *sqlstore.Container) (clients []*WaClient, err error) {
 	deviceStores, err := container.GetAllDevices()
-	//deviceStore, err := container.GetDevice(jid)
 	for _, deviceStore := range deviceStores {
 		client := whatsmeow.NewClient(deviceStore, waLog.Stdout("Client", "ERROR", true))
-		//client.AddEventHandler(EventHandler)
 		filter := bson.M{"phonenumber": deviceStore.ID.User}
 		user, err := atdb.GetOneLatestDoc[User](mongoconn, "user", filter)
 		if (client.Store.ID != nil) && (err == nil) {
