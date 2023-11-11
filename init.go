@@ -43,7 +43,11 @@ func ResetDeviceStore(client *WaClient, container *sqlstore.Container) (err erro
 }
 
 func CreateClientfromContainer(phonenumber string, mongoconn *mongo.Database, container *sqlstore.Container) (client *WaClient, err error) {
-	user, err := atdb.GetOneLatestDoc[User](mongoconn, "user", bson.M{"phonenumber": phonenumber})
+	var user User
+	user, err = atdb.GetOneLatestDoc[User](mongoconn, "user", bson.M{"phonenumber": phonenumber})
+	if err != nil {
+		user.PhoneNumber = phonenumber
+	}
 	var deviceStore *store.Device
 	if user.DeviceID == 0 {
 		var deviceid uint16
