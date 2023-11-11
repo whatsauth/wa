@@ -12,11 +12,8 @@ func GetWaClient(phonenumber string, client []*WaClient, mongoconn *mongo.Databa
 	if id >= 0 {
 		waclient = client[id]
 	} else {
-		client, err = ConnectAllClient(mongoconn, container)
-		id, err = WithPhoneNumber(phonenumber, client, mongoconn)
-		waclient = client[id]
-		//waclient, err = CreateClientfromContainer(phonenumber, mongoconn, container)
-		//client = append(client, waclient)
+		waclient, err = CreateClientfromContainer(phonenumber, mongoconn, container)
+		client = append(client, waclient)
 	}
 	return
 }

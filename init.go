@@ -72,13 +72,14 @@ func CreateClientfromContainer(phonenumber string, mongoconn *mongo.Database, co
 	wc.WAClient = whatsmeow.NewClient(deviceStore, waLog.Stdout("Client", "ERROR", true))
 	wc.Mongoconn = mongoconn
 	wc.register()
-	if wc.WAClient.Store.ID != nil { //tanda belum terkoneksi
+	if deviceStore.ID != nil { //tanda belum terkoneksi
 		user.DeviceID = deviceStore.ID.Device
+	} else {
+		user.DeviceID = 0
 	}
 	atdb.ReplaceOneDoc(mongoconn, "user", bson.M{"phonenumber": phonenumber}, user)
 	client = &wc
 	return
-
 }
 
 func GetDeviceIDFromContainer(phonenumber string, container *sqlstore.Container) (deviceid uint16, err error) {
