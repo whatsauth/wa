@@ -2,6 +2,7 @@ package wa
 
 import (
 	"go.mau.fi/whatsmeow"
+	"go.mau.fi/whatsmeow/types"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -23,6 +24,7 @@ type WaClient struct {
 	WAClient       *whatsmeow.Client
 	eventHandlerID uint32
 	Mongoconn      *mongo.Database
+	ID             *types.JID
 }
 
 type WebHook struct {

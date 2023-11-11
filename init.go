@@ -60,12 +60,13 @@ func ClientDB(phonenumber string, mongoconn *mongo.Database, container *sqlstore
 	client.PhoneNumber = phonenumber
 	client.WAClient = whatsmeow.NewClient(deviceStore, waLog.Stdout("Client", "ERROR", true))
 	client.Mongoconn = mongoconn
+	client.ID = deviceStore.ID
 	client.register()
 	return
 
 }
 
-func QRConnect(client WaClient, qr chan QRStatus) {
+func QRConnect(client *WaClient, qr chan QRStatus) {
 	if client.WAClient.Store.ID == nil {
 		//client.PairPhone(PhoneNumber, true, whatsmeow.PairClientUnknown, "whatsauth.my.id")
 		qrChan, _ := client.WAClient.GetQRChannel(context.Background())
@@ -92,7 +93,7 @@ func QRConnect(client WaClient, qr chan QRStatus) {
 
 }
 
-func PairConnect(client WaClient, qr chan QRStatus) {
+func PairConnect(client *WaClient, qr chan QRStatus) {
 	if client.WAClient.Store.ID == nil {
 		err := client.WAClient.Connect()
 		if err != nil {
@@ -122,25 +123,23 @@ func PairConnect(client WaClient, qr chan QRStatus) {
 func ConnectAllClient(mongoconn *mongo.Database, container *sqlstore.Container) (clients []*WaClient, err error) {
 	deviceStores, err := container.GetAllDevices()
 	//deviceStore, err := container.GetDevice(jid)
-	nosebelumnya := ""
 	for _, deviceStore := range deviceStores {
-		if deviceStore.ID.User != nosebelumnya {
-			client := whatsmeow.NewClient(deviceStore, waLog.Stdout("Client", "ERROR", true))
-			//client.AddEventHandler(EventHandler)
-			filter := bson.M{"phonenumber": deviceStore.ID.User}
-			_, err := atdb.GetOneLatestDoc[User](mongoconn, "user", filter)
-			if (client.Store.ID != nil) && (err == nil) {
-				var mycli WaClient
-				mycli.WAClient = client
-				mycli.PhoneNumber = deviceStore.ID.User
-				mycli.Mongoconn = mongoconn
-				mycli.register()
-				client.Connect()
-				clients = append(clients, &mycli)
+		client := whatsmeow.NewClient(deviceStore, waLog.Stdout("Client", "ERROR", true))
+		//client.AddEventHandler(EventHandler)
+		filter := bson.M{"phonenumber": deviceStore.ID.User}
+		_, err := atdb.GetOneLatestDoc[User](mongoconn, "user", filter)
+		if (client.Store.ID != nil) && (err == nil) {
+			var mycli WaClient
+			mycli.WAClient = client
+			mycli.PhoneNumber = deviceStore.ID.User
+			mycli.Mongoconn = mongoconn
+			mycli.ID = deviceStore.ID
+			mycli.register()
+			client.Connect()
+			clients = append(clients, &mycli)
 
-			}
-			nosebelumnya = deviceStore.ID.User
 		}
+
 	}
 
 	return
