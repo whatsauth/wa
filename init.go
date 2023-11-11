@@ -115,6 +115,7 @@ func PairConnect(client *WaClient, qr chan QRStatus) {
 		code, err := client.WAClient.PairPhone(client.PhoneNumber, true, whatsmeow.PairClientUnknown, "Chrome (Mac OS)")
 		if err != nil {
 			message = err.Error()
+			qr <- QRStatus{client.PhoneNumber, false, "", message}
 		}
 		qr <- QRStatus{client.PhoneNumber, true, code, message}
 	} else {
@@ -124,6 +125,7 @@ func PairConnect(client *WaClient, qr chan QRStatus) {
 			err := client.WAClient.Connect()
 			if err != nil {
 				message = err.Error()
+				qr <- QRStatus{client.PhoneNumber, false, "", message}
 			}
 		}
 		qr <- QRStatus{client.PhoneNumber, false, "", message}
