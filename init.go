@@ -55,7 +55,7 @@ func CreateClientfromContainer(phonenumber string, mongoconn *mongo.Database, co
 	if deviceStore == nil {
 		deviceStore = container.NewDevice()
 	}
-	client.PhoneNumber = user.PhoneNumber
+	client.PhoneNumber = phonenumber
 	client.WAClient = whatsmeow.NewClient(deviceStore, waLog.Stdout("Client", "ERROR", true))
 	client.Mongoconn = mongoconn
 	client.ID = deviceStore.ID
