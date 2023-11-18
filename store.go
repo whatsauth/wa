@@ -18,6 +18,17 @@ func GetWaClient(phonenumber string, client []*WaClient, mongoconn *mongo.Databa
 	return
 }
 
+func SetWaClient(phonenumber string, client Clients, mongoconn *mongo.Database, container *sqlstore.Container) (waclient *WaClient, err error) {
+	id, err := WithPhoneNumber(phonenumber, client.List, mongoconn)
+	if id >= 0 {
+		waclient = client.List[id]
+	} else {
+		waclient, err = CreateClientfromContainer(phonenumber, mongoconn, container)
+		client.List = append(client.List, waclient)
+	}
+	return
+}
+
 func WithPhoneNumber(phonenumber string, clients []*WaClient, mongoconn *mongo.Database) (idx int, err error) {
 	user, err := atdb.GetOneLatestDoc[User](mongoconn, "user", bson.M{"phonenumber": phonenumber})
 	idx = -1

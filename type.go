@@ -18,6 +18,10 @@ type QRStatus struct {
 	Message     string `json:"message"`
 }
 
+type Clients struct {
+	List []*WaClient
+}
+
 type WaClient struct {
 	PhoneNumber    string
 	WAClient       *whatsmeow.Client
@@ -34,5 +38,6 @@ type User struct {
 	PhoneNumber string  `bson:"phonenumber" json:"phonenumber"`
 	DeviceID    uint16  `bson:"deviceid" json:"deviceid"`
 	WebHook     WebHook `bson:"webhook" json:"webhook"`
+	Mongostring string  `bson:"mongostring" json:"mongostring"`
 	Token       string  `bson:"token" json:"token"`
 }
