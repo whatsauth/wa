@@ -18,7 +18,7 @@ func GetWaClient(phonenumber string, client []*WaClient, mongoconn *mongo.Databa
 	return
 }
 
-func SetWaClient(phonenumber string, client Clients, mongoconn *mongo.Database, container *sqlstore.Container) (waclient *WaClient, err error) {
+func SetWaClient(phonenumber string, client *Clients, mongoconn *mongo.Database, container *sqlstore.Container) (waclient *WaClient, err error) {
 	id, err := WithPhoneNumber(phonenumber, client.List, mongoconn)
 	if id >= 0 {
 		waclient = client.List[id]
