@@ -9,6 +9,7 @@ require (
 	github.com/aiteung/module v0.0.27
 	github.com/lib/pq v1.10.9
 	github.com/mattn/go-sqlite3 v1.14.18
+	github.com/puzpuzpuz/xsync/v3 v3.0.2
 	go.mau.fi/whatsmeow v0.0.0-20231117115946-30233d743d35
 	go.mongodb.org/mongo-driver v1.12.1
 	google.golang.org/protobuf v1.31.0
