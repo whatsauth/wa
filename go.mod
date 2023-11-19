@@ -9,7 +9,7 @@ require (
 	github.com/aiteung/module v0.0.27
 	github.com/lib/pq v1.10.9
 	github.com/mattn/go-sqlite3 v1.14.18
-	go.mau.fi/whatsmeow v0.0.0-20231110185952-cfd1bea9628a
+	go.mau.fi/whatsmeow v0.0.0-20231117115946-30233d743d35
 	go.mongodb.org/mongo-driver v1.12.1
 	google.golang.org/protobuf v1.31.0
 )
@@ -35,7 +35,7 @@ require (
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
 	go.mau.fi/libsignal v0.1.0 // indirect
-	go.mau.fi/util v0.2.0 // indirect
+	go.mau.fi/util v0.2.1 // indirect
 	golang.org/x/crypto v0.15.0 // indirect
 	golang.org/x/net v0.18.0 // indirect
 	golang.org/x/sync v0.2.0 // indirect
