@@ -3,7 +3,6 @@ package wa
 import (
 	"context"
 	"fmt"
-
 	"github.com/aiteung/atdb"
 	"github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
@@ -161,6 +160,45 @@ func PairConnect(client *WaClient, qr chan QRStatus) {
 		qr <- QRStatus{client.PhoneNumber, false, "", message}
 
 	}
+
+}
+func PairConnectStore(client *WaClient, storeMap StoreClient, qr chan QRStatus) {
+	if client.WAClient.Store.ID == nil {
+		message := "Sudah login kak"
+		if !client.WAClient.IsConnected() {
+			message = "Koneksi Gagal Mencoba Melakukan Koneksi Ulang"
+			err := client.WAClient.Connect()
+			if err != nil {
+				message = err.Error()
+				qr <- QRStatus{client.PhoneNumber, false, "", message}
+				return
+			}
+			qr <- QRStatus{client.PhoneNumber, true, "", "Koneksi Berhasil"}
+			storeMap.StoreOnlineClient(DefaultID(client), client)
+			return
+		}
+		qr <- QRStatus{client.PhoneNumber, false, "", message}
+		return
+
+	}
+
+	message := "Silahkan Masukkan Pair Code Device di Handphone kakak"
+	err := client.WAClient.Connect()
+	if err != nil {
+		message = err.Error()
+		//qr <- QRStatus{client.PhoneNumber, false, "", message}
+	}
+	// No ID stored, new login
+	code, err := client.WAClient.PairPhone(client.PhoneNumber, true, whatsmeow.PairClientUnknown, "Chrome (Mac OS)")
+	if err != nil {
+		message = err.Error()
+		qr <- QRStatus{client.PhoneNumber, false, "", message}
+		return
+	}
+
+	qr <- QRStatus{client.PhoneNumber, true, code, message}
+	storeMap.StoreOnlineClient(DefaultID(client), client)
+	return
 
 }
 
