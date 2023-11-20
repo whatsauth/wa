@@ -6,11 +6,17 @@ import (
 )
 
 type MapClient struct {
-	xsync.MapOf[string, *WaClient]
+	*xsync.MapOf[string, *WaClient]
 }
 
-func (m *MapClient) NewMap() MapClient {
-	return MapClient{}
+func (m *MapClient) NewMap(size ...int) MapClient {
+	sizeHint := 10
+	if len(size) > 0 {
+		sizeHint = size[0]
+	}
+
+	syncer := xsync.NewMapOfPresized[string, *WaClient](sizeHint)
+	return MapClient{syncer}
 }
 
 func (m *MapClient) GetClient(id string) (client *WaClient, ok bool) {
