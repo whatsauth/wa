@@ -46,10 +46,38 @@ func (m *MapClient) CheckClientOnline(id string) (ok bool) {
 }
 
 func (m *MapClient) GetAllClient() (listCli []*WaClient) {
+
 	m.Range(func(k string, v *WaClient) bool {
 		listCli = append(listCli, v)
 		return true
 	})
+	return
+
+}
+
+func (m *MapClient) StatusAllClient() (res map[string]bool) {
+	res = make(map[string]bool, m.Size())
+
+	m.Range(func(k string, v *WaClient) bool {
+		res[k] = v.WAClient.IsConnected()
+		return true
+	})
+
+	return
+}
+
+func (m *MapClient) OfflineClient() (res []string) {
+
+	m.Range(func(k string, v *WaClient) (ok bool) {
+		ok = true
+
+		if !v.WAClient.IsConnected() {
+			res = append(res, k)
+		}
+
+		return
+	})
+
 	return
 }
 
