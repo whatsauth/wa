@@ -9,7 +9,7 @@ type MapClient struct {
 	*xsync.MapOf[string, *WaClient]
 }
 
-func (m *MapClient) NewMap(size ...int) MapClient {
+func NewMapClient(size ...int) MapClient {
 	sizeHint := 10
 	if len(size) > 0 {
 		sizeHint = size[0]
