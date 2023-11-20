@@ -162,7 +162,7 @@ func PairConnect(client *WaClient, qr chan QRStatus) {
 	}
 
 }
-func PairConnectStore(client *WaClient, storeMap StoreClient, qr chan QRStatus) {
+func PairConnectStore(client *WaClient, storeMap GetStoreClient, qr chan QRStatus) {
 	if client.WAClient.Store.ID == nil {
 		message := "Sudah login kak"
 		if !client.WAClient.IsConnected() {
@@ -177,9 +177,13 @@ func PairConnectStore(client *WaClient, storeMap StoreClient, qr chan QRStatus) 
 			storeMap.StoreOnlineClient(DefaultID(client), client)
 			return
 		}
+
+		if _, ok := storeMap.GetClient(DefaultID(client)); !ok {
+			storeMap.StoreOnlineClient(DefaultID(client), client)
+		}
+
 		qr <- QRStatus{client.PhoneNumber, false, "", message}
 		return
-
 	}
 
 	message := "Silahkan Masukkan Pair Code Device di Handphone kakak"
