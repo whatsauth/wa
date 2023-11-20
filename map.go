@@ -1,7 +1,6 @@
 package wa
 
 import (
-	"fmt"
 	"github.com/puzpuzpuz/xsync/v3"
 )
 
@@ -95,9 +94,24 @@ func (m *MapClient) StoreAllClient(listClient []*WaClient) (ok bool) {
 
 	// (client.WAClient.Store.ID.User == phonenumber) && (client.WAClient.Store.ID.Device == user.DeviceID)
 	for _, v := range listClient {
-		phoneNum := v.WAClient.Store.ID
-		devId := v.WAClient.Store.ID.Device
-		m.Store(fmt.Sprintf("%s-%d", phoneNum, devId), v)
+		m.Store(DefaultID(v), v)
+	}
+	ok = true
+	return
+}
+
+func (m *MapClient) StoreAllClientCustomId(listClient []*WaClient, f func(*WaClient) string) (ok bool) {
+	if len(listClient) < 1 {
+		return
+	}
+
+	if f == nil {
+		return
+	}
+
+	// (client.WAClient.Store.ID.User == phonenumber) && (client.WAClient.Store.ID.Device == user.DeviceID)
+	for _, v := range listClient {
+		m.Store(f(v), v)
 	}
 	ok = true
 	return
