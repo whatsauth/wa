@@ -32,6 +32,7 @@ func (m *MapClient) StoreOnlineClient(id string, client *WaClient) (ok bool) {
 
 STORECLIENT:
 	m.Store(id, client)
+	ok = true
 	return
 }
 
