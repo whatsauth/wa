@@ -164,46 +164,33 @@ func PairConnect(client *WaClient, qr chan QRStatus) {
 }
 func PairConnectStore(client *WaClient, storeMap GetStoreClient, qr chan QRStatus) {
 	if client.WAClient.Store.ID == nil {
+		message := "Silahkan Masukkan Pair Code Device di Handphone kakak"
+		err := client.WAClient.Connect()
+		if err != nil {
+			message = err.Error()
+			//qr <- QRStatus{client.PhoneNumber, false, "", message}
+		}
+		// No ID stored, new login
+		code, err := client.WAClient.PairPhone(client.PhoneNumber, true, whatsmeow.PairClientUnknown, "Chrome (Mac OS)")
+		if err != nil {
+			message = err.Error()
+			qr <- QRStatus{client.PhoneNumber, false, "", message}
+		}
+		qr <- QRStatus{client.PhoneNumber, true, code, message}
+		storeMap.StoreOnlineClient(client.PhoneNumber, client)
+	} else {
 		message := "Sudah login kak"
 		if !client.WAClient.IsConnected() {
 			message = "Koneksi Gagal Mencoba Melakukan Koneksi Ulang"
 			err := client.WAClient.Connect()
 			if err != nil {
 				message = err.Error()
-				qr <- QRStatus{client.PhoneNumber, false, "", message}
-				return
 			}
-			qr <- QRStatus{client.PhoneNumber, true, "", "Koneksi Berhasil"}
-			storeMap.StoreOnlineClient(DefaultID(client), client)
-			return
+			qr <- QRStatus{client.PhoneNumber, false, "", message}
 		}
-
-		if _, ok := storeMap.GetClient(DefaultID(client)); !ok {
-			storeMap.StoreOnlineClient(DefaultID(client), client)
-		}
-
 		qr <- QRStatus{client.PhoneNumber, false, "", message}
-		return
-	}
 
-	message := "Silahkan Masukkan Pair Code Device di Handphone kakak"
-	err := client.WAClient.Connect()
-	if err != nil {
-		message = err.Error()
-		//qr <- QRStatus{client.PhoneNumber, false, "", message}
 	}
-	// No ID stored, new login
-	code, err := client.WAClient.PairPhone(client.PhoneNumber, true, whatsmeow.PairClientUnknown, "Chrome (Mac OS)")
-	if err != nil {
-		message = err.Error()
-		qr <- QRStatus{client.PhoneNumber, false, "", message}
-		return
-	}
-
-	qr <- QRStatus{client.PhoneNumber, true, code, message}
-	storeMap.StoreOnlineClient(DefaultID(client), client)
-	return
-
 }
 
 func ConnectClient(client *whatsmeow.Client) error {
