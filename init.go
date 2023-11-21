@@ -165,7 +165,8 @@ func PairConnect(client *WaClient, qr chan QRStatus) {
 func PairConnectStore(client *WaClient, storeMap GetStoreClient, qr chan QRStatus) {
 	if client.WAClient.Store.ID == nil {
 		message := "Silahkan Masukkan Pair Code Device di Handphone kakak"
-		err := client.WAClient.Connect()
+
+		err := ConnectClient(client.WAClient)
 		if err != nil {
 			message = err.Error()
 			//qr <- QRStatus{client.PhoneNumber, false, "", message}
