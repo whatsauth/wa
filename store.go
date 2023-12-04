@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/aiteung/atdb"
 	"go.mau.fi/whatsmeow/store/sqlstore"
+	"go.mau.fi/whatsmeow/types"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -23,6 +24,19 @@ func GetWaClientMap(phonenumber string, client GetStoreClient, mongoconn *mongo.
 	id, err := FindByPhoneNum(phonenumber, client, mongoconn)
 	if id == "" {
 		waclient, err = CreateClientfromContainer(phonenumber, mongoconn, container)
+		if err != nil {
+			return
+		}
+		client.StoreOnlineClient(id, waclient)
+		return
+	}
+
+	_, err = container.GetDevice(types.NewJID(phonenumber, types.DefaultUserServer))
+	if err != nil {
+		waclient, err = CreateClientfromContainer(phonenumber, mongoconn, container)
+		if err != nil {
+			return
+		}
 		client.StoreOnlineClient(id, waclient)
 		return
 	}
