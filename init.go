@@ -194,6 +194,73 @@ func PairConnectStore(client *WaClient, storeMap GetStoreClient, qr chan QRStatu
 	}
 }
 
+func PairConnectStoreMap(client *WaClient, storeMap GetStoreClient, qr chan QRStatus) {
+	err := ConnectClient(client.WAClient)
+
+	status := QRStatus{PhoneNumber: client.PhoneNumber}
+
+	defer func(st QRStatus, stchan chan QRStatus) {
+		stchan <- st
+	}(status, qr)
+
+	if client.WAClient.Store.ID == nil {
+		status.Message = "Silahkan Masukkan Pair Code Device di Handphone kakak"
+
+		if err != nil {
+			status.Message = err.Error()
+			return
+		}
+
+		code, err := client.WAClient.PairPhone(client.PhoneNumber, true, whatsmeow.PairClientUnknown, "Chrome (Mac OS)")
+		if err != nil {
+			status.Message = err.Error()
+			return
+		}
+
+		status.Status = true
+		status.Code = code
+
+		storeMap.StoreOnlineClient(client.PhoneNumber, client)
+		return
+	}
+
+	status.Message = "Sudah login kak"
+	if !client.WAClient.IsConnected() {
+		status.Message = "Koneksi Gagal Mencoba Melakukan Koneksi Ulang"
+		err := client.WAClient.Connect()
+		if err != nil {
+			status.Message = err.Error()
+		}
+		return
+	}
+	return
+}
+
+func RePairConnect(client *WaClient) (qr QRStatus, err error) {
+	err = ConnectClient(client.WAClient)
+	qr.PhoneNumber = client.PhoneNumber
+	qr.Message = "Silahkan Masukkan Pair Code Device di Handphone kakak"
+
+	if err != nil {
+		qr.Message = err.Error()
+		return
+	}
+
+	if client.WAClient.Store.ID == nil {
+		qr.Code, err = client.WAClient.PairPhone(client.PhoneNumber, true, whatsmeow.PairClientUnknown, "Chrome (Mac OS)")
+		if err != nil {
+			qr.Message = err.Error()
+			return
+		}
+
+		qr.Status = true
+		return
+	}
+
+	qr.Status = true
+	return
+}
+
 func ConnectClient(client *whatsmeow.Client) error {
 	if !client.IsConnected() {
 		return client.Connect()
