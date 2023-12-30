@@ -28,6 +28,10 @@ func (m *MapClient) StoreClient(id string, client *WaClient) {
 }
 
 func (m *MapClient) StoreOnlineClient(id string, client *WaClient) (ok bool) {
+	if client.WAClient == nil {
+		goto STORECLIENT
+	}
+
 	if client.WAClient.IsConnected() {
 		goto STORECLIENT
 	}
@@ -44,6 +48,10 @@ STORECLIENT:
 func (m *MapClient) CheckClientOnline(id string) (ok bool) {
 	client, ok := m.Load(id)
 	if !ok {
+		return
+	}
+
+	if client.WAClient == nil {
 		return
 	}
 
@@ -64,9 +72,17 @@ func (m *MapClient) GetAllClient() (listCli []*WaClient) {
 func (m *MapClient) StatusAllClient() (res map[string]bool) {
 	res = make(map[string]bool, m.Size())
 
-	m.Range(func(k string, v *WaClient) bool {
+	m.Range(func(k string, v *WaClient) (ok bool) {
+		ok = true
+
+		if v.WAClient == nil {
+			res[k] = false
+			return
+		}
+
 		res[k] = v.WAClient.IsConnected()
-		return true
+
+		return
 	})
 
 	return
@@ -76,6 +92,11 @@ func (m *MapClient) OfflineClient() (res []string) {
 
 	m.Range(func(k string, v *WaClient) (ok bool) {
 		ok = true
+
+		if v.WAClient == nil {
+			res = append(res, k)
+			return
+		}
 
 		if !v.WAClient.IsConnected() {
 			res = append(res, k)
@@ -94,6 +115,10 @@ func (m *MapClient) StoreAllClient(listClient []*WaClient) (ok bool) {
 
 	// (client.WAClient.Store.ID.User == phonenumber) && (client.WAClient.Store.ID.Device == user.DeviceID)
 	for _, v := range listClient {
+		if v.WAClient == nil {
+			continue
+		}
+
 		m.Store(DefaultID(v), v)
 	}
 	ok = true
@@ -120,6 +145,10 @@ func (m *MapClient) StoreAllClientCustomId(listClient []*WaClient, f func(*WaCli
 func (m *MapClient) SetOnlineClient(id string) (ok bool) {
 	cli, ok := m.Load(id)
 	if !ok {
+		return
+	}
+
+	if cli.WAClient == nil {
 		return
 	}
 
