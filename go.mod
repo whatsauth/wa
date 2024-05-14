@@ -3,7 +3,6 @@ module github.com/whatsauth/wa
 go 1.22.3
 
 require (
-	github.com/aiteung/atapi v0.1.1
 	github.com/aiteung/atdb v0.1.7
 	github.com/aiteung/atmessage v0.1.0
 	github.com/aiteung/module v0.1.2
@@ -20,6 +19,7 @@ require (
 	aidanwoods.dev/go-result v0.1.0 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/Rhymen/go-whatsapp v0.1.1 // indirect
+	github.com/aiteung/atapi v0.1.1 // indirect
 	github.com/aiteung/musik v0.0.5 // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
