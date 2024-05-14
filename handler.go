@@ -31,7 +31,7 @@ func HandlingMessage(Info *types.MessageInfo, Message *waProto.Message, client *
 		result, err := PostStructWithToken[atmessage.Response]("secret", userdt.WebHook.Secret, Pesan, userdt.WebHook.URL)
 		if err != nil {
 			var wamsg waProto.Message
-			wamsg.Conversation = proto.String("ERROR: " + err.Error() + " RESULT:" + result.Response)
+			wamsg.Conversation = proto.String(err.Error() + " RESULT:" + result.Response)
 			client.WAClient.SendMessage(context.Background(), Info.Chat, &wamsg)
 		}
 	}
