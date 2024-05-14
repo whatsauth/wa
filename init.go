@@ -2,7 +2,9 @@ package wa
 
 import (
 	"context"
+	"errors"
 	"fmt"
+
 	"github.com/aiteung/atdb"
 	"github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
@@ -30,7 +32,13 @@ func (mycli *WaClient) EventHandler(evt interface{}) {
 func CreateContainerDB(pgstring string) (container *sqlstore.Container, err error) {
 	dbLog := waLog.Stdout("Database", "ERROR", true)
 	pgUrl, err := pq.ParseURL(pgstring)
+	if err != nil {
+		return
+	}
 	container, err = sqlstore.New("postgres", pgUrl, dbLog)
+	if err != nil {
+		return
+	}
 	return
 }
 
@@ -38,6 +46,9 @@ func ResetDeviceStore(mongoconn *mongo.Database, client *WaClient, container *sq
 	if client.WAClient.Store.ID != nil {
 		var id uint16
 		id, err = GetDeviceIDFromContainer(client.PhoneNumber, container)
+		if err != nil {
+			return
+		}
 		filter := bson.M{"phonenumber": client.PhoneNumber}
 		var user User
 		user, err = atdb.GetOneLatestDoc[User](mongoconn, "user", filter)
@@ -59,6 +70,9 @@ func CreateClientfromContainer(phonenumber string, mongoconn *mongo.Database, co
 	if user.DeviceID == 0 {
 		var deviceid uint16
 		deviceid, err = GetDeviceIDFromContainer(phonenumber, container)
+		if err != nil {
+			return
+		}
 		deviceStore, err = container.GetDevice(types.JID{User: user.PhoneNumber, Device: deviceid, Server: "s.whatsapp.net"})
 	} else {
 		deviceStore, err = container.GetDevice(types.JID{User: user.PhoneNumber, Device: user.DeviceID, Server: "s.whatsapp.net"})
@@ -194,8 +208,8 @@ func PairConnectStore(client *WaClient, storeMap GetStoreClient, qr chan QRStatu
 	}
 }
 
-func PairConnectStoreMap(client *WaClient, storeMap GetStoreClient, qr chan QRStatus) {
-	err := ConnectClient(client.WAClient)
+func PairConnectStoreMap(client *WaClient, storeMap GetStoreClient, qr chan QRStatus) (err error) {
+	err = ConnectClient(client.WAClient)
 
 	status := QRStatus{PhoneNumber: client.PhoneNumber}
 
@@ -210,8 +224,8 @@ func PairConnectStoreMap(client *WaClient, storeMap GetStoreClient, qr chan QRSt
 			status.Message = err.Error()
 			return
 		}
-
-		code, err := client.WAClient.PairPhone(client.PhoneNumber, true, whatsmeow.PairClientUnknown, "Chrome (Mac OS)")
+		var code string
+		code, err = client.WAClient.PairPhone(client.PhoneNumber, true, whatsmeow.PairClientUnknown, "Chrome (Mac OS)")
 		if err != nil {
 			status.Message = err.Error()
 			return
@@ -220,14 +234,19 @@ func PairConnectStoreMap(client *WaClient, storeMap GetStoreClient, qr chan QRSt
 		status.Status = true
 		status.Code = code
 
-		storeMap.StoreOnlineClient(client.PhoneNumber, client)
+		storemapsuccess := storeMap.StoreOnlineClient(client.PhoneNumber, client)
+		if !storemapsuccess {
+			status.Message = "storeMap.StoreOnlineClient(client.PhoneNumber, client) Failed"
+			err = errors.New(status.Message)
+			return
+		}
 		return
 	}
 
 	status.Message = "Sudah login kak"
 	if !client.WAClient.IsConnected() {
 		status.Message = "Koneksi Gagal Mencoba Melakukan Koneksi Ulang"
-		err := client.WAClient.Connect()
+		err = client.WAClient.Connect()
 		if err != nil {
 			status.Message = err.Error()
 		}

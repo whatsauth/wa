@@ -26,6 +26,7 @@ func HandlingMessage(Info *types.MessageInfo, Message *waProto.Message, client *
 		//kirim ke webhook
 		filter := bson.M{"phonenumber": client.PhoneNumber}
 		userdt, _ := atdb.GetOneLatestDoc[User](client.Mongoconn, "user", filter)
+		go client.WAClient.SendChatPresence(Info.Chat, types.ChatPresenceComposing, types.ChatPresenceMediaText)
 		atapi.PostStructWithToken[atmessage.Response]("secret", userdt.WebHook.Secret, Pesan, userdt.WebHook.URL)
 	}
 }

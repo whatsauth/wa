@@ -2,19 +2,24 @@ package wa
 
 import (
 	"fmt"
+
 	"github.com/aiteung/atdb"
 	"go.mau.fi/whatsmeow/store/sqlstore"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func GetWaClient(phonenumber string, client []*WaClient, mongoconn *mongo.Database, container *sqlstore.Container) (waclient *WaClient, err error) {
+func GetWaClient(phonenumber string, client []*WaClient, mongoconn *mongo.Database, container *sqlstore.Container) (waclient *WaClient, IsCreateNewClient bool, err error) {
 	id, err := WithPhoneNumber(phonenumber, client, mongoconn)
 	if id >= 0 {
 		waclient = client[id]
 	} else {
 		waclient, err = CreateClientfromContainer(phonenumber, mongoconn, container)
-		client = append(client, waclient)
+		if err != nil {
+			return
+		}
+		IsCreateNewClient = true
+		//if IsNewClient{config.Client = append(config.Client, client)}
 	}
 	return
 }

@@ -14,7 +14,7 @@ func SendTextMessage(txt TextMessage, whatsapp *whatsmeow.Client) (resp whatsmeo
 	if txt.IsGroup {
 		server = "g.us"
 	}
-	go whatsapp.SendChatPresence(types.NewJID(txt.To, server), types.ChatPresenceComposing, types.ChatPresenceMediaText)
+	//go whatsapp.SendChatPresence(types.NewJID(txt.To, server), types.ChatPresenceComposing, types.ChatPresenceMediaText)
 	var wamsg waProto.Message
 	wamsg.Conversation = proto.String(txt.Messages)
 	resp, err = whatsapp.SendMessage(context.Background(), types.NewJID(txt.To, server), &wamsg)
