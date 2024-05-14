@@ -1,6 +1,7 @@
 package wa
 
 import (
+	"context"
 	"time"
 
 	"github.com/aiteung/atapi"
@@ -11,6 +12,7 @@ import (
 	waProto "go.mau.fi/whatsmeow/binary/proto"
 	"go.mau.fi/whatsmeow/types"
 	"go.mongodb.org/mongo-driver/bson"
+	"google.golang.org/protobuf/proto"
 )
 
 func HandlingMessage(Info *types.MessageInfo, Message *waProto.Message, client *WaClient) {
@@ -27,6 +29,11 @@ func HandlingMessage(Info *types.MessageInfo, Message *waProto.Message, client *
 		filter := bson.M{"phonenumber": client.PhoneNumber}
 		userdt, _ := atdb.GetOneLatestDoc[User](client.Mongoconn, "user", filter)
 		go client.WAClient.SendChatPresence(Info.Chat, types.ChatPresenceComposing, types.ChatPresenceMediaText)
-		atapi.PostStructWithToken[atmessage.Response]("secret", userdt.WebHook.Secret, Pesan, userdt.WebHook.URL)
+		result, errm := atapi.PostStructWithToken[atmessage.Response]("secret", userdt.WebHook.Secret, Pesan, userdt.WebHook.URL)
+		if errm != "" {
+			var wamsg waProto.Message
+			wamsg.Conversation = proto.String("ERROR: " + errm + " RESULT:" + result.Response)
+			client.WAClient.SendMessage(context.Background(), Info.Chat, &wamsg)
+		}
 	}
 }
